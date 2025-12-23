@@ -420,3 +420,8 @@ body > #sparkle-bg {
     height: 44px;
   }
 }
+p {
+  margin: 0;
+  padding: 0;
+  line-height: 3em;
+}
