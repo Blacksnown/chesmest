@@ -4,6 +4,30 @@ body {
   height: 100%;
   margin: 0;
 }
+/* Make original author 'rem' values behave like px while allowing small scaling per viewport.
+   This keeps the existing spacing intent but makes it possible to scale down on small screens.
+*/
+html {
+  font-size: 1px; /* 1rem == 1px for the existing stylesheet units */
+}
+/* Slightly reduce base on narrow screens so large layout scales down naturally */
+@media (max-width: 480px) {
+  html {
+    font-size: 0.9px;
+  }
+}
+/* Gentle increase on very large screens */
+@media (min-width: 1400px) {
+  html {
+    font-size: 1.05px;
+  }
+}
+/* sensible box-sizing for predictable sizing */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
 body {
   background: #290305ee;
   display: flex;
@@ -318,6 +342,12 @@ body {
   align-items: center;
   z-index: 1;
   pointer-events: none; /* allow controls overlaid elsewhere to receive clicks */
+  /* make the container respect viewport size and allow the tree to scale */
+  max-width: 95vw;
+  max-height: 85vh;
+  width: auto;
+  padding: 1rem;
+  overflow: auto; /* allow small screens to scroll if needed */
 }
 
 /* Allow interactive controls inside to receive pointer events */

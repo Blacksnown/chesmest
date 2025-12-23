@@ -34,7 +34,10 @@
       <div class="trunk"></div>
 
       <!-- Đèn -->
-      <div class="light" style="top: 60rem; left: -20rem; background: red"></div>
+      <div
+        class="light"
+        style="top: 60rem; left: -20rem; background: red"
+      ></div>
       <div
         class="light"
         style="top: 90rem; left: 20rem; background: yellow"
@@ -51,7 +54,10 @@
         class="light"
         style="top: 200rem; left: -60rem; background: orange"
       ></div>
-      <div class="light" style="top: 230rem; left: 60rem; background: cyan"></div>
+      <div
+        class="light"
+        style="top: 230rem; left: 60rem; background: cyan"
+      ></div>
     </div>
     <div id="ascii-tree-container" aria-label="ASCII tree"></div>
 
@@ -154,9 +160,44 @@
         zoomRange?.addEventListener("input", (e) => {
           setZoom(e.target.value);
         });
-        // apply initial zoom value from range then render initial tree
-        setZoom(Number(zoomRange?.value || 28));
+        // compute a responsive zoom value based on viewport width
+        let _autoZoom = Number(zoomRange?.value || 28);
+        function computeResponsiveZoom() {
+          const w = window.innerWidth || document.documentElement.clientWidth;
+          if (w < 420) return Math.max(12, Math.round(w / 28));
+          if (w < 900) return Math.max(16, Math.round(w / 32));
+          return Number(zoomRange?.value || 28);
+        }
+
+        // allow user interaction to override automatic resizing
+        let userAdjusted = false;
+        zoomRange?.addEventListener("input", () => (userAdjusted = true));
+        zoomIn?.addEventListener("click", () => (userAdjusted = true));
+        zoomOut?.addEventListener("click", () => (userAdjusted = true));
+
+        // apply initial auto zoom, but respect if range already changed
+        _autoZoom = computeResponsiveZoom();
+        if (!userAdjusted) {
+          if (zoomRange) zoomRange.value = _autoZoom;
+          setZoom(_autoZoom);
+        }
         renderCurrent();
+
+        // on resize, update zoom only if user hasn't adjusted manually
+        let resizeTimer;
+        window.addEventListener("resize", () => {
+          clearTimeout(resizeTimer);
+          resizeTimer = setTimeout(() => {
+            const newAuto = computeResponsiveZoom();
+            if (!userAdjusted && newAuto !== _autoZoom) {
+              _autoZoom = newAuto;
+              if (zoomRange) zoomRange.value = _autoZoom;
+              setZoom(_autoZoom);
+            }
+            // also recreate sparkles for nicer distribution
+            createSparkles(60);
+          }, 120);
+        });
 
         // create twinkling background lights
         function createSparkles(count = 60) {
