@@ -1,0 +1,422 @@
+/* Main layout */
+html,
+body {
+  height: 100%;
+  margin: 0;
+}
+body {
+  background: #290305ee;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, "Noto Sans", "Segoe UI Emoji", sans-serif;
+  color: #fff;
+}
+
+/* ASCII tree rendered by tree.js */
+.ascii-tree {
+  font-family: "Courier New", Courier, monospace;
+  font-size: var(--ascii-font-size);
+  transition: font-size 0.12s linear;
+  line-height: 1.05;
+  text-align: center;
+  text-shadow: 0 0 6px rgba(15, 219, 134, 0.15);
+  margin: 8px auto;
+}
+:root {
+  --ascii-font-size: 28px;
+}
+.ascii-tree div {
+  height: 1.1em;
+}
+.ascii-tree .star {
+  color: gold;
+  font-size: 1.2em;
+  text-shadow: 0 0 6px gold;
+}
+.ascii-tree .light {
+  color: #ce108f;
+  animation: blink 1s infinite alternate;
+}
+.ascii-tree .dot {
+  color: #da1711;
+}
+.ascii-tree .trunk {
+  color: #12bde7;
+}
+.ascii-tree .paused {
+  animation-play-state: paused !important;
+}
+
+.controls {
+  /* compact control panel pinned to a corner */
+  position: fixed;
+  top: 12px;
+  right: 12px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-end;
+  background: rgba(0, 0, 0, 0.18);
+  padding: 8px;
+  border-radius: 10px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(6px) saturate(1.05);
+  pointer-events: auto;
+}
+.control {
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 6px 8px; /* slightly smaller to make controls compact */
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+}
+.control:active {
+  transform: translateY(1px);
+}
+
+/* Zoom controls pinned to a corner of the viewport */
+.zoom-controls {
+  /* now positioned by the parent .controls panel */
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  padding: 4px 6px;
+  border-radius: 8px;
+}
+
+.zoom-controls .control {
+  padding: 6px 8px;
+  min-width: 34px;
+  text-align: center;
+  font-size: 14px;
+  line-height: 1;
+}
+
+.zoom-controls input[type="range"] {
+  width: 120px;
+  height: 22px;
+  appearance: none;
+  -webkit-appearance: none;
+  background: transparent;
+}
+.zoom-controls input[type="range"]::-webkit-slider-runnable-track {
+  height: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+}
+.zoom-controls input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  background: #fff;
+  border-radius: 50%;
+  margin-top: -5px;
+}
+
+/* Move to bottom-right on small screens to avoid covering top content */
+@media (max-width: 480px) {
+  .controls {
+    top: auto;
+    bottom: 12px;
+    right: 12px;
+    left: auto;
+    align-items: flex-end;
+    padding: 8px;
+    gap: 6px;
+  }
+  .zoom-controls input[type="range"] {
+    width: 100px;
+  }
+}
+
+/* Decorative tree bits (kept for existing DOM structure) */
+.tree {
+  position: relative;
+  width: 260px;
+  height: 340px;
+}
+/* Lights (some elements use inline positioning) */
+.light {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+}
+.light1 {
+  top: -250px;
+  left: -40px;
+  background: red;
+  animation: blink 1.3s infinite alternate;
+}
+.light2 {
+  top: -200px;
+  left: 60px;
+  background: yellow;
+  animation-delay: 0.3s;
+  animation: blink 1.2s infinite alternate;
+}
+.light3 {
+  top: -150px;
+  left: 70px;
+  background: blue;
+  animation-delay: 0.6s;
+  animation: blink 1.1s infinite alternate;
+}
+.light4 {
+  top: -100px;
+  left: 50px;
+  background: pink;
+  animation-delay: 0.9s;
+  animation: blink 1.4s infinite alternate;
+}
+.light5 {
+  top: -50px;
+  left: -30px;
+  background: orange;
+  animation-delay: 1.2s;
+  animation: blink 1.35s infinite alternate;
+}
+
+@keyframes blink {
+  from {
+    opacity: 0.25;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+}
+
+@keyframes twinkle {
+  from {
+    opacity: 0.6;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1.12);
+  }
+}
+
+/* Snow */
+.snow {
+  position: absolute;
+  top: -10px;
+  width: 10px;
+  height: 10px;
+  background: rgb(243, 241, 240);
+  border-radius: 50%;
+  animation: fall 6s linear infinite;
+}
+@keyframes fall {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(100vh);
+  }
+}
+.snow:nth-child(1) {
+  left: 10%;
+  animation-delay: 0s;
+}
+.snow:nth-child(2) {
+  left: 25%;
+  animation-delay: 1s;
+}
+.snow:nth-child(3) {
+  left: 40%;
+  animation-delay: 2s;
+}
+.snow:nth-child(4) {
+  left: 60%;
+  animation-delay: 3s;
+}
+.snow:nth-child(5) {
+  left: 80%;
+  animation-delay: 4s;
+}
+.snow:nth-child(6) {
+  left: 95%;
+  animation-delay: 5s;
+}
+
+/* Message */
+.message {
+  position: absolute;
+  /* moved closer to the bottom edge as requested */
+  bottom: 12px;
+  text-align: center;
+  color: rgb(189, 9, 9);
+  font-size: 16px; /* smaller text */
+  max-width: 420px;
+  animation: glow 2s infinite alternate;
+}
+.message p {
+  margin: 6px 0;
+  line-height: 1.25;
+}
+@keyframes glow {
+  from {
+    color: #ffcccc;
+    text-shadow: 0 0 5px red;
+  }
+  to {
+    color: #ffff99;
+    text-shadow: 0 0 15px yellow;
+  }
+}
+
+/* Small responsive tweaks */
+@media (max-width: 480px) {
+  .ascii-tree {
+    font-size: 14px;
+  }
+  .message {
+    font-size: 14px;
+    padding: 0 12px;
+  }
+}
+
+/* wrapper and star above the ASCII tree */
+.tree-wrapper {
+  display: inline-block;
+  text-align: center;
+  position: relative;
+  margin-bottom: 6px;
+}
+.tree-star {
+  color: gold;
+  font-size: 56px;
+  line-height: 0.6;
+  text-shadow: 0 0 8px gold;
+  margin-bottom: -6px; /* tuck visually into the top of the tree */
+}
+
+@media (max-width: 480px) {
+  .tree-star {
+    font-size: 38px;
+  }
+}
+
+/* Center ASCII tree container in the viewport */
+#ascii-tree-container {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1;
+  pointer-events: none; /* allow controls overlaid elsewhere to receive clicks */
+}
+
+/* Allow interactive controls inside to receive pointer events */
+#ascii-tree-container * {
+  pointer-events: auto;
+}
+
+/* Twinkling background sparkles */
+#sparkle-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+.sparkle {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(1.6px) saturate(1.2);
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0.6);
+  box-shadow: 0 0 10px rgba(255, 255, 220, 0.6),
+    0 0 20px rgba(255, 200, 120, 0.15) inset;
+  animation-name: sparkle-twinkle;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+}
+
+@keyframes sparkle-twinkle {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.6);
+  }
+  30% {
+    opacity: 0.9;
+    transform: translate(-50%, -50%) scale(1.05);
+  }
+  60% {
+    opacity: 0.45;
+    transform: translate(-50%, -50%) scale(0.9);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.6);
+  }
+}
+
+/* Ensure background sits behind ASCII tree but above page background */
+body > #sparkle-bg {
+  z-index: 0;
+}
+
+/* Fancy tree (CSS layers) */
+.fancy-wrapper {
+  display: inline-block;
+  text-align: center;
+  position: relative;
+  width: 420px;
+  pointer-events: auto;
+}
+.fancy-star {
+  font-size: 60px;
+  color: gold;
+  text-shadow: 0 0 10px gold;
+  margin-bottom: -12px;
+}
+.fancy-layer {
+  height: 60px;
+  margin: -18px auto 0 auto;
+  border-radius: 6px;
+  background: linear-gradient(180deg, #1b7a2a, #0f4d1a);
+  clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+  position: relative;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+}
+.fancy-ornament {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.6);
+}
+.fancy-trunk {
+  width: 60px;
+  height: 48px;
+  margin: 6px auto 0 auto;
+  background: linear-gradient(180deg, #7a4a2b, #5a3218);
+  border-radius: 6px;
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+@media (max-width: 480px) {
+  .fancy-wrapper {
+    width: 260px;
+  }
+  .fancy-star {
+    font-size: 42px;
+  }
+  .fancy-layer {
+    height: 44px;
+  }
+}

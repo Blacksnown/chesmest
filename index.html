@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Cây Thông Noel Nhấp Nháy</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div id="sparkle-bg" aria-hidden="true"></div>
+    <div class="tree">
+      <div class="star">★</div>
+      <div class="light light1"></div>
+      <div class="light light2"></div>
+      <div class="light light3"></div>
+      <div class="trunk"></div>
+    </div>
+
+    <!-- Tuyết -->
+    <div class="snow"></div>
+    <div class="snow"></div>
+    <div class="snow"></div>
+    <div class="snow"></div>
+    <div class="snow"></div>
+    <div class="snow"></div>
+
+    <div class="tree">
+      <div class="star">★</div>
+
+      <div class="layer"></div>
+      <div class="layer"></div>
+      <div class="layer"></div>
+
+      <div class="trunk"></div>
+
+      <!-- Đèn -->
+      <div class="light" style="top: 60px; left: -20px; background: red"></div>
+      <div
+        class="light"
+        style="top: 90px; left: 20px; background: yellow"
+      ></div>
+      <div
+        class="light"
+        style="top: 130px; left: -40px; background: blue"
+      ></div>
+      <div
+        class="light"
+        style="top: 160px; left: 40px; background: purple"
+      ></div>
+      <div
+        class="light"
+        style="top: 200px; left: -60px; background: orange"
+      ></div>
+      <div class="light" style="top: 230px; left: 60px; background: cyan"></div>
+    </div>
+    <div id="ascii-tree-container" aria-label="ASCII tree"></div>
+
+    <div class="controls">
+      <label for="tree-size" class="visually-hidden">Kích thước cây</label>
+      <select id="tree-size" class="control" aria-label="Kích thước cây">
+        <option value="small">Cây nhỏ</option>
+        <option value="large">Cây lớn</option>
+      </select>
+      <label for="tree-style" class="visually-hidden">Kiểu cây</label>
+      <select id="tree-style" class="control" aria-label="Kiểu cây">
+        <option value="ascii">ASCII</option>
+        <option value="fancy">Fancy (đẹp)</option>
+      </select>
+      <button id="toggle-lights" class="control">Tắt đèn</button>
+      <div class="zoom-controls" aria-hidden="false">
+        <button id="zoom-out" class="control" title="Thu nhỏ">−</button>
+        <input id="zoom-range" type="range" min="12" max="56" value="28" />
+        <button id="zoom-in" class="control" title="Phóng to">+</button>
+      </div>
+    </div>
+
+    <!--     Lời chúc -->
+    <div class="message">
+      <p>🎄 Giáng Sinh an lành, Hà My yêu dấu!</p>
+      <p>✨ Anh hứa sẽ mãi yêu thương và che chở cho em.</p>
+      <p>💖 Dù mùa đông lạnh giá, trái tim anh luôn ấm áp vì có em.</p>
+    </div>
+    <script type="module">
+      import {
+        smallTree,
+        largeTree,
+        renderTree,
+        renderFancyTree,
+      } from "./tree.js";
+
+      document.addEventListener("DOMContentLoaded", () => {
+        const container = document.getElementById("ascii-tree-container");
+        // helper to render based on style & size
+        const styleSelect = document.getElementById("tree-style");
+        const sizeSelect = document.getElementById("tree-size");
+
+        function renderCurrent() {
+          const style = styleSelect?.value || "ascii";
+          const size = sizeSelect?.value || "small";
+          if (style === "fancy") {
+            // render the CSS/DOM fancy tree
+            renderFancyTree(container, { size });
+          } else {
+            const data = size === "large" ? largeTree : smallTree;
+            renderTree(container, { className: "ascii-tree", data });
+          }
+          // reapply zoom to newly rendered tree
+          setZoom(Number(zoomRange?.value || 28));
+        }
+
+        // wire selectors
+        sizeSelect?.addEventListener("change", renderCurrent);
+        styleSelect?.addEventListener("change", renderCurrent);
+
+        // Toggle blinking lights (pause/resume)
+        const btn = document.getElementById("toggle-lights");
+        btn?.addEventListener("click", () => {
+          document.querySelectorAll(".light").forEach((el) => {
+            const paused = el.classList.toggle("paused");
+            if (paused) el.style.animationPlayState = "paused";
+            else el.style.animationPlayState = "";
+          });
+          if (btn.textContent?.trim() === "Tắt đèn")
+            btn.textContent = "Bật đèn";
+          else btn.textContent = "Tắt đèn";
+        });
+
+        // Zoom controls for the ASCII tree
+        const pre = document.querySelector(".ascii-tree");
+        const zoomRange = document.getElementById("zoom-range");
+        const zoomIn = document.getElementById("zoom-in");
+        const zoomOut = document.getElementById("zoom-out");
+        function setZoom(px) {
+          const asciiEl = document.querySelector(".ascii-tree");
+          const fancyEl = document.querySelector(".fancy-wrapper");
+          if (asciiEl) {
+            asciiEl.style.fontSize = px + "px";
+          }
+          if (fancyEl) {
+            // scale fancy wrapper
+            const scale = px / 28; // base 28
+            fancyEl.style.transform = `scale(${scale})`;
+          }
+          if (zoomRange) zoomRange.value = px;
+        }
+        zoomIn?.addEventListener("click", () => {
+          const v = Math.min(56, Number(zoomRange.value) + 2);
+          setZoom(v);
+        });
+        zoomOut?.addEventListener("click", () => {
+          const v = Math.max(12, Number(zoomRange.value) - 2);
+          setZoom(v);
+        });
+        zoomRange?.addEventListener("input", (e) => {
+          setZoom(e.target.value);
+        });
+        // apply initial zoom value from range then render initial tree
+        setZoom(Number(zoomRange?.value || 28));
+        renderCurrent();
+
+        // create twinkling background lights
+        function createSparkles(count = 60) {
+          const bg = document.getElementById("sparkle-bg");
+          if (!bg) return;
+          // clear any existing
+          bg.innerHTML = "";
+          for (let i = 0; i < count; i++) {
+            const s = document.createElement("span");
+            s.className = "sparkle";
+            const size = Math.round(6 + Math.random() * 18);
+            const left = Math.random() * 100;
+            const top = Math.random() * 100;
+            const delay = (Math.random() * 5).toFixed(2);
+            const duration = 2 + Math.random() * 4;
+            s.style.width = size + "px";
+            s.style.height = size + "px";
+            s.style.left = left + "%";
+            s.style.top = top + "%";
+            s.style.animationDelay = delay + "s";
+            s.style.animationDuration = duration + "s";
+            // tint - subtle color variations
+            const hue = 40 + Math.round(Math.random() * 120);
+            s.style.background = `radial-gradient(circle at 30% 30%, rgba(255,255,220,0.95), rgba(255,255,220,0.7) 30%, rgba(0,0,0,0) 60%), hsl(${hue} 90% 65% / 0.55)`;
+            bg.appendChild(s);
+          }
+        }
+
+        // create initial sparkles and recreate on resize for nicer distribution
+        createSparkles(70);
+        window.addEventListener("resize", () => createSparkles(60));
+      });
+    </script>
+  </body>
+</html>
